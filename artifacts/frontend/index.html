@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ticket Triage — Avaliação por IA</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header__inner">
+      <div class="header__brand">
+        <svg class="header__logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#2563eb"/>
+          <path d="M8 22l6-12 4 8 3-5 3 9" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="header__title">Ticket Triage</span>
+      </div>
+      <span class="header__badge">Powered by IA</span>
+    </div>
+  </header>
+
+  <!-- ── Main layout ────────────────────────────────────────────── -->
+  <main class="layout">
+
+    <!-- Left column -->
+    <section class="panel panel--main">
+
+      <!-- Evaluate form -->
+      <div class="card" id="evaluate-card">
+        <h2 class="card__title">Avaliar Ticket</h2>
+        <p class="card__subtitle">Informe o número do ticket do Azure DevOps para análise por IA.</p>
+
+        <form id="evaluate-form" class="form" novalidate>
+          <div class="form__group">
+            <label class="form__label" for="ticket-id">Número do Ticket</label>
+            <div class="input-wrap">
+              <span class="input-wrap__prefix">#</span>
+              <input
+                class="input-wrap__field"
+                type="text"
+                id="ticket-id"
+                name="ticket_id"
+                placeholder="Ex.: 1234"
+                autocomplete="off"
+                required
+              />
+            </div>
+          </div>
+          <button class="btn btn--primary" type="submit" id="submit-btn">
+            <span id="btn-label">Analisar Ticket</span>
+            <span id="btn-spinner" class="spinner hidden" aria-hidden="true"></span>
+          </button>
+          <p id="error-msg" class="error-msg hidden" role="alert"></p>
+        </form>
+      </div>
+
+      <!-- Results (hidden until first evaluation) -->
+      <div class="card card--result hidden" id="result-card">
+        <div class="result-header">
+          <div class="result-header__meta">
+            <span class="result-header__type" id="result-type"></span>
+            <h2 class="result-header__title" id="result-title"></h2>
+            <p class="result-header__meta-row">
+              Ticket <strong id="result-id"></strong>
+              &nbsp;·&nbsp;
+              Estado: <strong id="result-state"></strong>
+            </p>
+          </div>
+          <div class="score-circle" id="score-circle">
+            <svg class="score-circle__ring" viewBox="0 0 80 80">
+              <circle class="score-circle__track" cx="40" cy="40" r="34"/>
+              <circle class="score-circle__fill" id="score-ring" cx="40" cy="40" r="34"
+                stroke-dasharray="213.6"
+                stroke-dashoffset="213.6"/>
+            </svg>
+            <span class="score-circle__value" id="score-value">—</span>
+          </div>
+        </div>
+
+        <div class="result-section">
+          <h3 class="result-section__heading">Avaliação da IA</h3>
+          <p class="result-section__text" id="result-feedback"></p>
+        </div>
+
+        <div class="result-section" id="strengths-section">
+          <h3 class="result-section__heading">Pontos Positivos</h3>
+          <ul class="chip-list" id="strengths-list"></ul>
+        </div>
+
+        <div class="result-section" id="questions-section">
+          <div class="questions-banner">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M18 10A8 8 0 1 1 2 10a8 8 0 0 1 16 0zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-1 8a1 1 0 0 0 1-1V9a1 1 0 1 0-2 0v4a1 1 0 0 0 1 1z" clip-rule="evenodd"/></svg>
+            <strong>Nota inferior a 8 — perguntas para completar o ticket</strong>
+          </div>
+          <ol class="questions-list" id="questions-list"></ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right column: history -->
+    <aside class="panel panel--side">
+      <div class="card card--history">
+        <div class="card__title-row">
+          <h2 class="card__title">Histórico</h2>
+          <button class="btn btn--ghost btn--sm" id="refresh-history-btn" title="Atualizar histórico">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4 2a1 1 0 0 1 1 1v2.101a7.002 7.002 0 0 1 11.601 2.566 1 1 0 1 1-1.885.666A5.002 5.002 0 0 0 5.999 7H9a1 1 0 0 1 0 2H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm.008 9.057a1 1 0 0 1 1.276.61A5.002 5.002 0 0 0 14.001 13H11a1 1 0 1 1 0-2h5a1 1 0 0 1 1 1v5a1 1 0 1 1-2 0v-2.101a7.002 7.002 0 0 1-11.601-2.566 1 1 0 0 1 .61-1.276z" clip-rule="evenodd"/></svg>
+          </button>
+        </div>
+        <p class="card__subtitle">Últimas avaliações realizadas.</p>
+
+        <div id="history-loading" class="loading-row hidden">
+          <span class="spinner spinner--sm"></span> Carregando…
+        </div>
+        <ul class="history-list" id="history-list">
+          <li class="history-list__empty">Nenhuma avaliação ainda.</li>
+        </ul>
+        <p class="history-total hidden" id="history-total"></p>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────────── -->
+  <footer class="footer">
+    Sistema de Triagem de Tickets &mdash; Avaliação por IA &copy; 2024
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

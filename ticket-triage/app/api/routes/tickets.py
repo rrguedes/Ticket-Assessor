@@ -21,6 +21,7 @@ from app.services.openai_service import OpenAITicketEvaluator
 from app.services.ticket_service import TicketTriageService
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
+# Full paths: /triage/tickets/evaluate, /triage/tickets/evaluations, …
 
 
 # ── Dependency factory ────────────────────────────────────────────────────────

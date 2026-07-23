@@ -21,8 +21,8 @@ app = FastAPI(
     title="Ticket Triage System",
     description="AI-powered Azure DevOps ticket quality evaluation.",
     version="1.0.0",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
+    docs_url="/triage/docs",
+    redoc_url="/triage/redoc",
 )
 
 app.add_middleware(
@@ -33,10 +33,10 @@ app.add_middleware(
 )
 
 # ── API routes ────────────────────────────────────────────────────────────────
-app.include_router(tickets.router, prefix="/api")
+app.include_router(tickets.router, prefix="/triage")
 
 
-@app.get("/api/healthz", tags=["health"])
+@app.get("/triage/healthz", tags=["health"])
 def health_check():
     return {"status": "ok"}
 
