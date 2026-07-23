@@ -1,45 +1,75 @@
-# [Project name]
+# Ticket Triage System
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Sistema de triagem de tickets do Azure DevOps com avaliação por IA (OpenAI ChatGPT), pontuação 0–10, e perguntas complementares quando nota < 8.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- **Ticket Triage App** — `cd ticket-triage && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload`
+- **Testes** — `cd ticket-triage && python3 -m pytest tests/ -v`
+- **Docker** — `cd ticket-triage && docker compose up --build`
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Backend: Python 3.11, FastAPI, SQLAlchemy 2, psycopg2
+- Frontend: HTML5 + CSS3 puro (servido pelo FastAPI como arquivos estáticos)
+- IA: OpenAI gpt-4o-mini via API
+- Integração: Azure DevOps REST API v7.0 (PAT auth)
+- Banco: PostgreSQL (Replit DB via `DATABASE_URL`)
+- Testes: pytest + pytest-asyncio + pytest-mock (30 testes)
+- Docker: Dockerfile multi-stage + docker-compose.yml
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+```
+ticket-triage/
+├── app/
+│   ├── main.py                      # Entry point FastAPI; monta rotas e estáticos
+│   ├── config.py                    # Pydantic Settings (env vars)
+│   ├── database/
+│   │   ├── connection.py            # Engine SQLAlchemy + get_db()
+│   │   └── models.py                # Modelo TicketEvaluation
+│   ├── schemas/ticket.py            # Pydantic schemas (request/response)
+│   ├── services/
+│   │   ├── interfaces.py            # ABCs: TicketFetcherInterface, AIEvaluatorInterface, EvaluationRepositoryInterface
+│   │   ├── azure_devops.py          # Implementação: busca ticket no Azure DevOps
+│   │   ├── openai_service.py        # Implementação: avalia ticket via OpenAI
+│   │   ├── evaluation_repository.py # Implementação: persiste no PostgreSQL
+│   │   └── ticket_service.py        # Orquestrador (DI, SOLID)
+│   └── api/routes/tickets.py        # Endpoints FastAPI
+├── frontend/
+│   ├── index.html
+│   ├── css/style.css
+│   └── js/app.js
+├── tests/                           # 30 testes unitários (sem chamadas reais)
+├── Dockerfile                       # Multi-stage build
+├── docker-compose.yml               # App + PostgreSQL
+└── requirements.txt
+```
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- **SOLID**: cada serviço implementa uma interface ABC; `TicketTriageService` depende só de abstrações (DIP)
+- **Monolito modular**: um processo, separação clara por responsabilidade
+- **Frontend estático servido pelo FastAPI** via `StaticFiles` — sem servidor separado
+- **HTML stripped** dos campos rich-text do Azure DevOps antes de enviar ao LLM
+- **gpt-4o-mini** como modelo padrão: equilíbrio custo/qualidade para avaliação de texto
 
-## Product
+## Secrets required
 
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
+| Secret | Descrição |
+|---|---|
+| `OPENAI_API_KEY` | Chave da API OpenAI |
+| `AZURE_DEVOPS_PAT` | Personal Access Token do Azure DevOps |
+| `AZURE_DEVOPS_ORG_URL` | URL da organização (ex: https://dev.azure.com/org) |
+| `AZURE_DEVOPS_PROJECT` | Nome do projeto no Azure DevOps |
+| `DATABASE_URL` | Gerenciado pelo Replit automaticamente |
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- O FastAPI cria as tabelas automaticamente no startup (`Base.metadata.create_all`)
+- Para Docker: copie `.env.example` para `.env` e preencha os valores
+- Testes rodam com mocks completos — não requerem conexão real com Azure/OpenAI/DB
 
-## Pointers
+## User preferences
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+_Populate as you build._
