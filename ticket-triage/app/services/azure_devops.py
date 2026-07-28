@@ -3,6 +3,7 @@ Azure DevOps ticket fetcher — concrete implementation of TicketFetcherInterfac
 Single Responsibility: only interacts with the Azure DevOps REST API.
 Open/Closed: extend by subclassing or swapping; no changes needed here for other providers.
 """
+
 from __future__ import annotations
 import base64
 import re
@@ -11,7 +12,6 @@ import httpx
 
 from app.schemas.ticket import TicketData
 from app.services.interfaces import TicketFetcherInterface
-
 
 # Azure DevOps numeric priority → human-readable label
 _PRIORITY_MAP: dict[int, str] = {
@@ -42,21 +42,21 @@ class AzureDevOpsTicketFetcher(TicketFetcherInterface):
         }
 
     async def fetch_ticket(self, ticket_id: str) -> TicketData:
-        url = (
-            f"{self._base_url}/{self._project}"
-            f"/_apis/wit/workitems/{ticket_id}"
-        )
+        url = f"{self._base_url}/{self._project}" f"/_apis/wit/workitems/{ticket_id}"
         params = {"api-version": "7.0", "$expand": "all"}
 
         async with httpx.AsyncClient(timeout=30) as client:
             response = await client.get(url, headers=self._headers, params=params)
+            print(response)
             response.raise_for_status()
             data = response.json()
 
         fields: dict = data.get("fields", {})
 
         priority_raw = fields.get("Microsoft.VSTS.Common.Priority")
-        priority = _PRIORITY_MAP.get(priority_raw, str(priority_raw)) if priority_raw else None
+        priority = (
+            _PRIORITY_MAP.get(priority_raw, str(priority_raw)) if priority_raw else None
+        )
 
         assigned_to_raw = fields.get("System.AssignedTo")
         if isinstance(assigned_to_raw, dict):

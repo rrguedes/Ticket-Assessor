@@ -2,6 +2,7 @@
 Ticket API routes.
 Single Responsibility: only maps HTTP requests to service calls and formats responses.
 """
+
 from __future__ import annotations
 
 import httpx
@@ -26,6 +27,7 @@ router = APIRouter(prefix="/tickets", tags=["tickets"])
 
 # ── Dependency factory ────────────────────────────────────────────────────────
 
+
 def _get_service(db: Session = Depends(get_db)) -> TicketTriageService:
     """Compose the service with its concrete dependencies (DI via FastAPI)."""
     cfg = get_settings()
@@ -44,6 +46,7 @@ def _get_service(db: Session = Depends(get_db)) -> TicketTriageService:
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
+
 
 @router.post("/evaluate", response_model=EvaluationResponse, status_code=200)
 async def evaluate_ticket(

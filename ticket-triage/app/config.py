@@ -2,6 +2,7 @@
 Application configuration — centralises all environment variables.
 Single Responsibility: Only manages settings and their defaults.
 """
+
 from functools import lru_cache
 from pydantic_settings import BaseSettings
 
@@ -12,7 +13,8 @@ class Settings(BaseSettings):
     azure_devops_pat: str
     azure_devops_org_url: str
     azure_devops_project: str
-    openai_model: str = "gpt-4o-mini"
+    # openai_model: str = "gpt-4o-mini"
+    openai_model: str = "llama3.2"
 
     class Config:
         env_file = ".env"

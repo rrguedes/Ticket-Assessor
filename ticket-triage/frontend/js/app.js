@@ -3,36 +3,36 @@
  * Plain vanilla JS, no build step required.
  */
 
-const API_BASE = '/api/tickets';
+const API_BASE = '/triage/tickets';
 
 // ── Element references ────────────────────────────────────────────────────────
-const form        = document.getElementById('evaluate-form');
+const form = document.getElementById('evaluate-form');
 const ticketInput = document.getElementById('ticket-id');
-const submitBtn   = document.getElementById('submit-btn');
-const btnLabel    = document.getElementById('btn-label');
-const btnSpinner  = document.getElementById('btn-spinner');
-const errorMsg    = document.getElementById('error-msg');
+const submitBtn = document.getElementById('submit-btn');
+const btnLabel = document.getElementById('btn-label');
+const btnSpinner = document.getElementById('btn-spinner');
+const errorMsg = document.getElementById('error-msg');
 
-const resultCard  = document.getElementById('result-card');
+const resultCard = document.getElementById('result-card');
 const scoreCircle = document.getElementById('score-circle');
-const scoreRing   = document.getElementById('score-ring');
-const scoreValue  = document.getElementById('score-value');
+const scoreRing = document.getElementById('score-ring');
+const scoreValue = document.getElementById('score-value');
 
-const resultType     = document.getElementById('result-type');
-const resultTitle    = document.getElementById('result-title');
-const resultId       = document.getElementById('result-id');
-const resultState    = document.getElementById('result-state');
+const resultType = document.getElementById('result-type');
+const resultTitle = document.getElementById('result-title');
+const resultId = document.getElementById('result-id');
+const resultState = document.getElementById('result-state');
 const resultFeedback = document.getElementById('result-feedback');
 
 const strengthsSection = document.getElementById('strengths-section');
-const strengthsList    = document.getElementById('strengths-list');
+const strengthsList = document.getElementById('strengths-list');
 const questionsSection = document.getElementById('questions-section');
-const questionsList    = document.getElementById('questions-list');
+const questionsList = document.getElementById('questions-list');
 
-const historyList    = document.getElementById('history-list');
+const historyList = document.getElementById('history-list');
 const historyLoading = document.getElementById('history-loading');
-const historyTotal   = document.getElementById('history-total');
-const refreshBtn     = document.getElementById('refresh-history-btn');
+const historyTotal = document.getElementById('history-total');
+const refreshBtn = document.getElementById('refresh-history-btn');
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function scoreClass(score) {
@@ -76,9 +76,9 @@ function formatDate(iso) {
 
 // ── Render result ─────────────────────────────────────────────────────────────
 function renderResult(data) {
-  resultType.textContent  = data.ticket_type || 'Ticket';
+  resultType.textContent = data.ticket_type || 'Ticket';
   resultTitle.textContent = data.ticket_title || `#${data.ticket_id}`;
-  resultId.textContent    = `#${data.ticket_id}`;
+  resultId.textContent = `#${data.ticket_id}`;
   resultState.textContent = data.ticket_state || '—';
   resultFeedback.textContent = data.feedback;
 

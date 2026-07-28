@@ -2,6 +2,7 @@
 FastAPI application entry point.
 Registers middleware, mounts the API router and serves the static frontend.
 """
+
 from __future__ import annotations
 import os
 
@@ -36,7 +37,7 @@ app.add_middleware(
 app.include_router(tickets.router, prefix="/triage")
 
 
-@app.get("/triage/healthz", tags=["health"])
+@app.get("/triage/healthz", tags=["healthz"])
 def health_check():
     return {"status": "ok"}
 

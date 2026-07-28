@@ -2,6 +2,7 @@
 OpenAI ticket evaluator — concrete implementation of AIEvaluatorInterface.
 Single Responsibility: only communicates with the OpenAI Chat Completions API.
 """
+
 from __future__ import annotations
 import json
 
@@ -45,10 +46,12 @@ Rules:
 
 
 class OpenAITicketEvaluator(AIEvaluatorInterface):
-    """Evaluates a ticket by calling the OpenAI Chat Completions API."""
+    """Evaluates a ticket by calling the OpenAI Chat Completions API. Model: gpt-4o-mini"""
 
-    def __init__(self, api_key: str, model: str = "gpt-4o-mini") -> None:
-        self._client = AsyncOpenAI(api_key=api_key)
+    def __init__(self, api_key: str, model: str = "llama3.2") -> None:
+        self._client = AsyncOpenAI(
+            base_url="http://host.docker.internal:11434/v1", api_key=api_key
+        )
         self._model = model
 
     async def evaluate_ticket(self, ticket: TicketData) -> AIEvaluationResult:

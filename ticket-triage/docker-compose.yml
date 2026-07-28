@@ -8,16 +8,16 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql://triage:${POSTGRES_PASSWORD:-triagepass}@db:5432/ticket_triage
-      OPENAI_API_KEY:        ${OPENAI_API_KEY}
-      AZURE_DEVOPS_PAT:      ${AZURE_DEVOPS_PAT}
-      AZURE_DEVOPS_ORG_URL:  ${AZURE_DEVOPS_ORG_URL}
-      AZURE_DEVOPS_PROJECT:  ${AZURE_DEVOPS_PROJECT}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      AZURE_DEVOPS_PAT: ${AZURE_DEVOPS_PAT}
+      AZURE_DEVOPS_ORG_URL: ${AZURE_DEVOPS_ORG_URL}
+      AZURE_DEVOPS_PROJECT: ${AZURE_DEVOPS_PROJECT}
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/healthz')"]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/triage/healthz')" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -27,13 +27,13 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB:       ticket_triage
-      POSTGRES_USER:     triage
+      POSTGRES_DB: ticket_triage
+      POSTGRES_USER: triage
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-triagepass}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U triage -d ticket_triage"]
+      test: [ "CMD-SHELL", "pg_isready -U triage -d ticket_triage" ]
       interval: 5s
       timeout: 5s
       retries: 10
