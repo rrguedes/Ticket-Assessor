@@ -4,14 +4,20 @@ services:
   # ── Application ─────────────────────────────────────────────────────────────
   app:
     build: .
+    env_file:
+      - .env
     ports:
       - "8000:8000"
+      - "11434:11434" # Port for local models (if USE_LOCAL_MODELS is true)
     environment:
       DATABASE_URL: postgresql://triage:${POSTGRES_PASSWORD:-triagepass}@db:5432/ticket_triage
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       AZURE_DEVOPS_PAT: ${AZURE_DEVOPS_PAT}
       AZURE_DEVOPS_ORG_URL: ${AZURE_DEVOPS_ORG_URL}
       AZURE_DEVOPS_PROJECT: ${AZURE_DEVOPS_PROJECT}
+      USE_LOCAL_MODELS: ${USE_LOCAL_MODELS}
+      LOCAL_MODELS_BASE_URL: ${LOCAL_MODELS_BASE_URL}
+      LOCAL_MODEL_NAME: ${LOCAL_MODEL_NAME}
     depends_on:
       db:
         condition: service_healthy

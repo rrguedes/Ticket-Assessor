@@ -6,6 +6,8 @@ Single Responsibility: only communicates with the OpenAI Chat Completions API.
 from __future__ import annotations
 import json
 
+from app.config import get_settings
+
 from openai import AsyncOpenAI
 
 from app.schemas.ticket import AIEvaluationResult, TicketData
@@ -48,11 +50,16 @@ Rules:
 class OpenAITicketEvaluator(AIEvaluatorInterface):
     """Evaluates a ticket by calling the OpenAI Chat Completions API. Model: gpt-4o-mini"""
 
-    def __init__(self, api_key: str, model: str = "llama3.2") -> None:
-        self._client = AsyncOpenAI(
-            base_url="http://host.docker.internal:11434/v1", api_key=api_key
-        )
-        self._model = model
+    def __init__(self, api_key: str, model: str) -> None:
+        settings = get_settings()
+        if bool(settings.use_local_models) and settings.local_models_base_url:
+            self._client = AsyncOpenAI(
+                base_url=settings.local_models_base_url, api_key=api_key
+            )
+            self._model = settings.local_model_name
+        else:
+            self._client = AsyncOpenAI(api_key=api_key)
+            self._model = model
 
     async def evaluate_ticket(self, ticket: TicketData) -> AIEvaluationResult:
         user_message = f"Please evaluate this Azure DevOps ticket:\n\n{self._format_ticket(ticket)}"
