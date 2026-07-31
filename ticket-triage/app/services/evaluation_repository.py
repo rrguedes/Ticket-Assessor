@@ -4,6 +4,7 @@ Single Responsibility: only handles persistence of TicketEvaluation records.
 Open/Closed: swap for a different database by providing another implementation
              of EvaluationRepositoryInterface without touching business logic.
 """
+
 from __future__ import annotations
 from typing import List, Tuple
 
@@ -52,9 +53,7 @@ class PostgreSQLEvaluationRepository(EvaluationRepositoryInterface):
         )
         return [EvaluationResponse.model_validate(r) for r in rows], total
 
-    def get_evaluations_by_ticket_id(
-        self, ticket_id: str
-    ) -> List[EvaluationResponse]:
+    def get_evaluations_by_ticket_id(self, ticket_id: str) -> List[EvaluationResponse]:
         rows = (
             self._db.query(TicketEvaluation)
             .filter(TicketEvaluation.ticket_id == ticket_id)

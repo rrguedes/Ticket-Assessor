@@ -2,6 +2,7 @@
 Unit tests for AzureDevOpsTicketFetcher.
 HTTP calls are mocked with unittest.mock — no real network traffic.
 """
+
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -9,8 +10,8 @@ import httpx
 
 from app.services.azure_devops import AzureDevOpsTicketFetcher, _strip_html
 
-
 # ── Fixtures ──────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def fetcher() -> AzureDevOpsTicketFetcher:
@@ -47,6 +48,7 @@ def _full_fields(**overrides) -> dict:
 
 # ── fetch_ticket: field mapping ───────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_fetch_ticket_maps_title(fetcher):
     resp = _make_http_response({"id": 1, "fields": _full_fields()})
@@ -67,7 +69,9 @@ async def test_fetch_ticket_maps_ticket_type(fetcher):
 
 @pytest.mark.asyncio
 async def test_fetch_ticket_maps_priority_2_to_high(fetcher):
-    resp = _make_http_response({"id": 1, "fields": _full_fields(**{"Microsoft.VSTS.Common.Priority": 2})})
+    resp = _make_http_response(
+        {"id": 1, "fields": _full_fields(**{"Microsoft.VSTS.Common.Priority": 2})}
+    )
     with patch("httpx.AsyncClient") as mc:
         mc.return_value.__aenter__.return_value.get = AsyncMock(return_value=resp)
         ticket = await fetcher.fetch_ticket("1")
@@ -76,7 +80,9 @@ async def test_fetch_ticket_maps_priority_2_to_high(fetcher):
 
 @pytest.mark.asyncio
 async def test_fetch_ticket_maps_priority_1_to_critical(fetcher):
-    resp = _make_http_response({"id": 1, "fields": _full_fields(**{"Microsoft.VSTS.Common.Priority": 1})})
+    resp = _make_http_response(
+        {"id": 1, "fields": _full_fields(**{"Microsoft.VSTS.Common.Priority": 1})}
+    )
     with patch("httpx.AsyncClient") as mc:
         mc.return_value.__aenter__.return_value.get = AsyncMock(return_value=resp)
         ticket = await fetcher.fetch_ticket("1")
@@ -114,6 +120,7 @@ async def test_fetch_ticket_maps_story_points(fetcher):
 
 # ── fetch_ticket: missing / optional fields ───────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_fetch_ticket_handles_missing_optional_fields(fetcher):
     resp = _make_http_response({"id": 99, "fields": {"System.Title": "Minimal"}})
@@ -126,6 +133,7 @@ async def test_fetch_ticket_handles_missing_optional_fields(fetcher):
     assert ticket.assigned_to is None
     assert ticket.priority is None
     assert ticket.story_points is None
+    assert ticket.repro_steps is None
 
 
 @pytest.mark.asyncio
@@ -139,6 +147,7 @@ async def test_fetch_ticket_handles_string_assigned_to(fetcher):
 
 
 # ── fetch_ticket: HTTP errors ─────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_fetch_ticket_raises_on_404(fetcher):
@@ -154,6 +163,7 @@ async def test_fetch_ticket_raises_on_404(fetcher):
 
 
 # ── _strip_html helper ────────────────────────────────────────────────────────
+
 
 def test_strip_html_removes_tags():
     assert _strip_html("<p>Hello <b>world</b></p>") == "Hello  world"
