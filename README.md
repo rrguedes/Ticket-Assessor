@@ -67,6 +67,9 @@ AZURE_DEVOPS_PAT=your-azure-devops-pat
 AZURE_DEVOPS_ORG_URL=https://dev.azure.com/your-organization
 AZURE_DEVOPS_PROJECT=your-project-name
 OPENAI_MODEL=llama3.2
+USE_LOCAL_MODELS=true|false
+LOCAL_MODELS_BASE_URL=http://yourlocalurl:11434/v1
+LOCAL_MODEL_NAME=llama3.2
 ```
 
 ### Notes on AI model configuration

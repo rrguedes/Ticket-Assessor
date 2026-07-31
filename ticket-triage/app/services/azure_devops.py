@@ -77,4 +77,5 @@ class AzureDevOpsTicketFetcher(TicketFetcherInterface):
             assigned_to=assigned_to,
             tags=fields.get("System.Tags"),
             story_points=fields.get("Microsoft.VSTS.Scheduling.StoryPoints"),
+            repro_steps=fields.get("Microsoft.VSTS.TCM.ReproSteps"),
         )
