@@ -9,6 +9,7 @@ import json
 from app.config import get_settings
 
 from openai import AsyncOpenAI
+from langchain.agents import create_agent
 
 from app.schemas.ticket import AIEvaluationResult, TicketData
 from app.services.interfaces import AIEvaluatorInterface
@@ -53,14 +54,8 @@ class OpenAITicketEvaluator(AIEvaluatorInterface):
     def __init__(self, api_key: str, model: str) -> None:
         settings = get_settings()
         if bool(settings.use_local_models) and settings.local_models_base_url:
-            self._client = AsyncOpenAI(
-                base_url=settings.local_models_base_url, api_key=api_key
-            )
-            self._model = settings.local_model_name
-        else:
-            self._client = AsyncOpenAI(api_key=api_key)
-            self._model = model
-
+            agent = create_agent()
+            
     async def evaluate_ticket(self, ticket: TicketData) -> AIEvaluationResult:
         user_message = f"Please evaluate this Azure DevOps ticket:\n\n{self._format_ticket(ticket)}"
 

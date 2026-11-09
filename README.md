@@ -86,9 +86,7 @@ When using Ollama locally, the client can be pointed to http://localhost:11434/v
 ### 1. Install Python dependencies
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+uv sync
 ```
 
 ### 2. Start PostgreSQL
@@ -109,6 +107,11 @@ Then open:
 
 - http://localhost:8000/
 - http://localhost:8000/triage/docs for the API documentation
+
+### 4. Start the Web UI
+
+```bash
+```
 
 ## Running with Docker Compose
 
