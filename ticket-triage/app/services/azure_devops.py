@@ -50,6 +50,7 @@ class AzureDevOpsTicketFetcher(TicketFetcherInterface):
             print(response)
             response.raise_for_status()
             data = response.json()
+            comments = await self._fetch_comments(client, ticket_id)
 
         fields: dict = data.get("fields", {})
 
@@ -77,5 +78,38 @@ class AzureDevOpsTicketFetcher(TicketFetcherInterface):
             assigned_to=assigned_to,
             tags=fields.get("System.Tags"),
             story_points=fields.get("Microsoft.VSTS.Scheduling.StoryPoints"),
-            repro_steps=fields.get("Microsoft.VSTS.TCM.ReproSteps"),
+            repro_steps=_strip_html(fields.get("Microsoft.VSTS.TCM.ReproSteps")),
+            fix_description=_strip_html(fields.get("Microsoft.VSTS.TCM.FixDescription")),
+            comments=comments,
         )
+
+    async def _fetch_comments(
+        self, client: httpx.AsyncClient, ticket_id: str
+    ) -> list[str]:
+        url = (
+            f"{self._base_url}/{self._project}"
+            f"/_apis/wit/workItems/{ticket_id}/comments"
+        )
+        comments: list[str] = []
+        continuation_token: str | None = None
+
+        while True:
+            params = {"api-version": "7.1-preview.4", "$top": 200}
+            if continuation_token:
+                params["continuationToken"] = continuation_token
+            response = await client.get(url, headers=self._headers, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+            for comment in data.get("comments", []):
+                if not isinstance(comment, dict):
+                    continue
+                text = comment.get("text")
+                if isinstance(text, str):
+                    cleaned_text = _strip_html(text)
+                    if cleaned_text:
+                        comments.append(cleaned_text)
+
+            continuation_token = data.get("continuationToken")
+            if not continuation_token:
+                return comments

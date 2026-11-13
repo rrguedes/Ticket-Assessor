@@ -34,15 +34,34 @@ class TicketData(BaseModel):
     tags: Optional[str] = None
     story_points: Optional[float] = None
     repro_steps: Optional[str] = None
+    fix_description: Optional[str] = None
+    comments: List[str] = Field(
+        default_factory=list,
+        description="Comments associated with the ticket",
+    )
 
 
 class AIEvaluationResult(BaseModel):
     """Structured result returned by the AI evaluator."""
 
-    score: float = Field(..., ge=0, le=10)
-    feedback: str
-    strengths: List[str] = []
-    additional_questions: List[str] = []
+    score: float = Field(
+        ...,
+        ge=0,
+        le=10,
+        description="Ticket quality score from 0 to 10",
+    )
+    feedback: str = Field(
+        ...,
+        description="Feedback summarising ticket quality and key gaps",
+    )
+    strengths: List[str] = Field(
+        default_factory=list,
+        description="Strengths of the ticket",
+    )
+    additional_questions: List[str] = Field(
+        default_factory=list,
+        description="Additional questions to clarify ticket gaps",
+    )
 
 
 # ── Outbound ──────────────────────────────────────────────────────────────────

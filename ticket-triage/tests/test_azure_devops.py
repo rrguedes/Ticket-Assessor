@@ -134,7 +134,51 @@ async def test_fetch_ticket_handles_missing_optional_fields(fetcher):
     assert ticket.priority is None
     assert ticket.story_points is None
     assert ticket.repro_steps is None
+    assert ticket.comments == []
 
+
+@pytest.mark.asyncio
+async def test_fetch_ticket_collects_comments_across_pages(fetcher):
+    work_item_response = _make_http_response(
+        {"id": 1, "fields": _full_fields()}
+    )
+    first_comments_page = _make_http_response(
+        {
+            "comments": [
+                {"text": "First <b>comment</b>"},
+                {"text": "   "},
+                {"text": None},
+            ],
+            "continuationToken": "next-page",
+        }
+    )
+    second_comments_page = _make_http_response(
+        {"comments": [{"text": "Second comment"}]}
+    )
+    get = AsyncMock(
+        side_effect=[
+            work_item_response,
+            first_comments_page,
+            second_comments_page,
+        ]
+    )
+
+    with patch("httpx.AsyncClient") as mock_client:
+        mock_client.return_value.__aenter__.return_value.get = get
+        ticket = await fetcher.fetch_ticket("1")
+
+    assert ticket.comments == ["First  comment", "Second comment"]
+    assert get.await_count == 3
+    first_comments_request = get.await_args_list[1]
+    second_comments_request = get.await_args_list[2]
+    assert first_comments_request.args[0].endswith(
+        "/_apis/wit/workItems/1/comments"
+    )
+    assert first_comments_request.kwargs["params"] == {
+        "api-version": "7.1-preview.4",
+        "$top": 200,
+    }
+    assert second_comments_request.kwargs["params"]["continuationToken"] == "next-page"
 
 @pytest.mark.asyncio
 async def test_fetch_ticket_handles_string_assigned_to(fetcher):

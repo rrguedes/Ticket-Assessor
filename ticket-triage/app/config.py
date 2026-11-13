@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     azure_devops_org_url: str
     azure_devops_project: str
     openai_model: str = "llama3.2"
-    use_local_models: str
+    use_local_models: bool
     local_models_base_url: str
     local_model_name: str
 

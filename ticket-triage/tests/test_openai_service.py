@@ -1,10 +1,12 @@
 """
 Unit tests for OpenAITicketEvaluator.
-The OpenAI client is fully mocked — no real API calls.
+The LangChain model is fully mocked — no real API calls.
 """
-import json
 import pytest
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
+
+from langchain_core.runnables import RunnableLambda
 
 from app.schemas.ticket import TicketData
 from app.services.openai_service import OpenAITicketEvaluator
@@ -17,29 +19,42 @@ def evaluator() -> OpenAITicketEvaluator:
     return OpenAITicketEvaluator(api_key="test-key-not-real", model="gpt-4o-mini")
 
 
-def _make_openai_response(payload: dict) -> MagicMock:
-    """Build a mock that looks like an OpenAI ChatCompletion response."""
-    msg = MagicMock()
-    msg.content = json.dumps(payload)
-    choice = MagicMock()
-    choice.message = msg
-    response = MagicMock()
-    response.choices = [choice]
-    return response
+def test_local_model_configuration_is_used():
+    settings = SimpleNamespace(
+        use_local_models=True,
+        local_models_base_url="http://localhost:11434/v1",
+        local_model_name="llama3.2",
+    )
+    fake_model = RunnableLambda(lambda value: value)
+
+    with patch("app.services.openai_service.get_settings", return_value=settings):
+        with patch(
+            "app.services.openai_service.ChatOpenAI", return_value=fake_model
+        ) as chat_model:
+            OpenAITicketEvaluator(api_key="local-key", model="gpt-4o-mini")
+
+    chat_model.assert_called_once_with(
+        model="llama3.2",
+        api_key="local-key",
+        base_url="http://localhost:11434/v1",
+        temperature=0.2,
+    )
 
 
 # ── evaluate_ticket ───────────────────────────────────────────────────────────
 
 @pytest.mark.asyncio
 async def test_evaluate_ticket_parses_score(evaluator, sample_ticket):
-    mock_resp = _make_openai_response({
+    response = {
         "score": 7.5,
         "feedback": "Good ticket.",
         "strengths": ["Clear title"],
         "additional_questions": ["What are the ACs?"],
-    })
+    }
     with patch.object(
-        evaluator._client.chat.completions, "create", new=AsyncMock(return_value=mock_resp)
+        evaluator,
+        "_chain",
+        MagicMock(ainvoke=AsyncMock(return_value=response)),
     ):
         result = await evaluator.evaluate_ticket(sample_ticket)
 
@@ -48,14 +63,16 @@ async def test_evaluate_ticket_parses_score(evaluator, sample_ticket):
 
 @pytest.mark.asyncio
 async def test_evaluate_ticket_parses_feedback(evaluator, sample_ticket):
-    mock_resp = _make_openai_response({
+    response = {
         "score": 5.0,
         "feedback": "Missing acceptance criteria.",
         "strengths": [],
         "additional_questions": ["AC?", "Priority?", "Who is affected?"],
-    })
+    }
     with patch.object(
-        evaluator._client.chat.completions, "create", new=AsyncMock(return_value=mock_resp)
+        evaluator,
+        "_chain",
+        MagicMock(ainvoke=AsyncMock(return_value=response)),
     ):
         result = await evaluator.evaluate_ticket(sample_ticket)
 
@@ -64,14 +81,16 @@ async def test_evaluate_ticket_parses_feedback(evaluator, sample_ticket):
 
 @pytest.mark.asyncio
 async def test_evaluate_ticket_returns_questions_for_low_score(evaluator, minimal_ticket):
-    mock_resp = _make_openai_response({
+    response = {
         "score": 2.0,
         "feedback": "Ticket is too vague.",
         "strengths": [],
         "additional_questions": ["What is the goal?", "Who is affected?", "What are the ACs?"],
-    })
+    }
     with patch.object(
-        evaluator._client.chat.completions, "create", new=AsyncMock(return_value=mock_resp)
+        evaluator,
+        "_chain",
+        MagicMock(ainvoke=AsyncMock(return_value=response)),
     ):
         result = await evaluator.evaluate_ticket(minimal_ticket)
 
@@ -81,14 +100,16 @@ async def test_evaluate_ticket_returns_questions_for_low_score(evaluator, minima
 
 @pytest.mark.asyncio
 async def test_evaluate_ticket_empty_questions_for_high_score(evaluator, sample_ticket):
-    mock_resp = _make_openai_response({
+    response = {
         "score": 9.5,
         "feedback": "Excellent ticket.",
         "strengths": ["Clear title", "Full ACs", "Business value"],
         "additional_questions": [],
-    })
+    }
     with patch.object(
-        evaluator._client.chat.completions, "create", new=AsyncMock(return_value=mock_resp)
+        evaluator,
+        "_chain",
+        MagicMock(ainvoke=AsyncMock(return_value=response)),
     ):
         result = await evaluator.evaluate_ticket(sample_ticket)
 
@@ -99,17 +120,57 @@ async def test_evaluate_ticket_empty_questions_for_high_score(evaluator, sample_
 @pytest.mark.asyncio
 async def test_evaluate_ticket_handles_missing_optional_keys(evaluator, sample_ticket):
     """OpenAI may omit optional keys; the service must handle gracefully."""
-    mock_resp = _make_openai_response({
+    response = {
         "score": 6.0,
         "feedback": "Partial ticket.",
-    })
+    }
     with patch.object(
-        evaluator._client.chat.completions, "create", new=AsyncMock(return_value=mock_resp)
+        evaluator,
+        "_chain",
+        MagicMock(ainvoke=AsyncMock(return_value=response)),
     ):
         result = await evaluator.evaluate_ticket(sample_ticket)
 
     assert result.strengths == []
     assert result.additional_questions == []
+
+
+@pytest.mark.asyncio
+async def test_evaluate_ticket_refines_until_result_stabilizes(evaluator, sample_ticket):
+    response = {
+        "score": 7.5,
+        "feedback": "Good ticket.",
+        "strengths": ["Clear title"],
+        "additional_questions": ["What are the acceptance criteria?"],
+    }
+    chain = MagicMock(ainvoke=AsyncMock(return_value=response))
+    with patch.object(evaluator, "_chain", chain):
+        result = await evaluator.evaluate_ticket(sample_ticket)
+
+    assert result.score == 7.5
+    assert chain.ainvoke.await_count == 2
+    refinement_input = chain.ainvoke.await_args_list[1].args[0]
+    assert '"score":7.5' in refinement_input["previous_evaluation"]
+    assert "Critically review" in refinement_input["iteration_instruction"]
+
+
+@pytest.mark.asyncio
+async def test_evaluate_ticket_stops_at_maximum_iterations(evaluator, sample_ticket):
+    responses = [
+        {
+            "score": float(iteration),
+            "feedback": f"Iteration {iteration}.",
+            "strengths": [],
+            "additional_questions": [],
+        }
+        for iteration in range(10)
+    ]
+    chain = MagicMock(ainvoke=AsyncMock(side_effect=responses))
+    with patch.object(evaluator, "_chain", chain):
+        result = await evaluator.evaluate_ticket(sample_ticket)
+
+    assert result.feedback == "Iteration 9."
+    assert chain.ainvoke.await_count == 10
 
 
 # ── _format_ticket ────────────────────────────────────────────────────────────

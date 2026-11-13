@@ -25,7 +25,7 @@ The project is intended to help product owners, developers, and project managers
 
 - FastAPI REST API with interactive Swagger documentation
 - Azure DevOps integration for retrieving work items
-- AI-powered evaluation using an OpenAI-compatible client
+- AI-powered evaluation using LangChain with OpenAI-compatible chat models
 - PostgreSQL persistence for evaluation history
 - Simple static frontend for submitting tickets and reviewing results
 - Docker Compose support for local development and deployment
@@ -37,7 +37,7 @@ The project is intended to help product owners, developers, and project managers
 - SQLAlchemy
 - Pydantic and Pydantic Settings
 - PostgreSQL
-- OpenAI Python SDK
+- LangChain and LangChain OpenAI integration
 - HTTPX
 - Docker and Docker Compose
 - pytest
@@ -74,12 +74,12 @@ LOCAL_MODEL_NAME=llama3.2
 
 ### Notes on AI model configuration
 
-The current implementation uses an OpenAI-compatible client. This means it can work with:
+The evaluator uses LangChain with an OpenAI-compatible chat model. This means it can work with:
 
 - OpenAI hosted models
 - local models served through Ollama
 
-When using Ollama locally, the client can be pointed to http://localhost:11434/v1.
+When `USE_LOCAL_MODELS=true`, the evaluator uses `LOCAL_MODEL_NAME` and points to `LOCAL_MODELS_BASE_URL`, such as `http://localhost:11434/v1` for Ollama's OpenAI-compatible API.
 
 ## Running locally
 
