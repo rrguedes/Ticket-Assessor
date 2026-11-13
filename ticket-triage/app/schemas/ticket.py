@@ -66,6 +66,8 @@ class AIEvaluationResult(BaseModel):
         ...,
         description="Veredito final explicando se o ticket pode ser priorizado, estimado, implementado e testado",
     )
+    model: Optional[str] = None
+    
     
 
 
@@ -84,6 +86,7 @@ class EvaluationResponse(BaseModel):
     additional_questions: List[str]
     evaluated_at: datetime
     verdict: str
+    model: Optional[str] = None
 
     model_config = {"from_attributes": True}
 

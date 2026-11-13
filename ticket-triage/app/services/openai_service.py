@@ -111,10 +111,10 @@ class OpenAITicketEvaluator(AIEvaluatorInterface):
     def __init__(self, api_key: str, model: str) -> None:
         settings = get_settings()
         base_url = settings.local_models_base_url if settings.use_local_models else None
-        model_name = settings.local_model_name if settings.use_local_models else model
+        self._model_name = settings.local_model_name if settings.use_local_models else model
 
         chat_model = ChatOpenAI(
-            model=model_name,
+            model=self._model_name,
             api_key=api_key,
             base_url=base_url,
             temperature=0,
@@ -137,7 +137,6 @@ class OpenAITicketEvaluator(AIEvaluatorInterface):
     async def evaluate_ticket(self, ticket: TicketData) -> AIEvaluationResult:
         ticket_text = self._format_ticket(ticket)
         previous_result: AIEvaluationResult | None = None
-
         for iteration in range(_MAX_EVALUATION_ITERATIONS):
             print(f"Interação {iteration + 1} de {_MAX_EVALUATION_ITERATIONS}")
             result = await self._chain.ainvoke(
@@ -158,6 +157,7 @@ class OpenAITicketEvaluator(AIEvaluatorInterface):
                 }
             )
             current_result = AIEvaluationResult.model_validate(result)
+            current_result.model = self._model_name
 
             if previous_result is not None and current_result == previous_result:
                 return current_result
