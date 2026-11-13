@@ -34,6 +34,8 @@ const historyLoading = document.getElementById('history-loading');
 const historyTotal = document.getElementById('history-total');
 const refreshBtn = document.getElementById('refresh-history-btn');
 
+const resultVerdict = document.getElementById('result-verdict');
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function scoreClass(score) {
   if (score >= 8) return 'success';
@@ -81,6 +83,7 @@ function renderResult(data) {
   resultId.textContent = `#${data.ticket_id}`;
   resultState.textContent = data.ticket_state || '—';
   resultFeedback.textContent = data.feedback;
+  resultVerdict.textContent = data.verdict;
 
   renderScoreCircle(data.score);
 

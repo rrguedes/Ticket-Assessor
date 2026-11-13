@@ -34,6 +34,8 @@ class PostgreSQLEvaluationRepository(EvaluationRepositoryInterface):
             feedback=evaluation.feedback,
             strengths=evaluation.strengths,
             additional_questions=evaluation.additional_questions,
+            verdict=evaluation.verdict,
+            model=evaluation.model,
         )
         self._db.add(record)
         self._db.commit()

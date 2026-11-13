@@ -48,20 +48,25 @@ class AIEvaluationResult(BaseModel):
         ...,
         ge=0,
         le=10,
-        description="Ticket quality score from 0 to 10",
+        description="Qualidade do ticket de 0 a 10",
     )
     feedback: str = Field(
         ...,
-        description="Feedback summarising ticket quality and key gaps",
+        description="Feedback resumindo a qualidade do ticket e as principais lacunas",
     )
     strengths: List[str] = Field(
         default_factory=list,
-        description="Strengths of the ticket",
+        description="Pontos fortes do ticket",
     )
     additional_questions: List[str] = Field(
         default_factory=list,
-        description="Additional questions to clarify ticket gaps",
+        description="Perguntas adicionais para esclarecer lacunas do ticket",
     )
+    verdict: str = Field(
+        ...,
+        description="Veredito final explicando se o ticket pode ser priorizado, estimado, implementado e testado",
+    )
+    
 
 
 # ── Outbound ──────────────────────────────────────────────────────────────────
@@ -78,6 +83,7 @@ class EvaluationResponse(BaseModel):
     strengths: List[str]
     additional_questions: List[str]
     evaluated_at: datetime
+    verdict: str
 
     model_config = {"from_attributes": True}
 
