@@ -5,15 +5,15 @@ Dependency Inversion Principle: depends on the three abstract interfaces, never
 on concrete classes.  Business logic lives here; infrastructure concerns are
 pushed to the concrete implementations injected at construction time.
 """
+
 from __future__ import annotations
+
 from typing import List, Tuple
 
 from app.schemas.ticket import EvaluationResponse
-from app.services.interfaces import (
-    AIEvaluatorInterface,
-    EvaluationRepositoryInterface,
-    TicketFetcherInterface,
-)
+from app.services.interfaces import (AIEvaluatorInterface,
+                                     EvaluationRepositoryInterface,
+                                     TicketFetcherInterface)
 
 
 class TicketTriageService:
@@ -47,8 +47,6 @@ class TicketTriageService:
         """Return a paginated list of all evaluations and the total count."""
         return self._evaluation_repo.get_evaluations(limit, offset)
 
-    def get_evaluations_by_ticket(
-        self, ticket_id: str
-    ) -> List[EvaluationResponse]:
+    def get_evaluations_by_ticket(self, ticket_id: str) -> List[EvaluationResponse]:
         """Return every evaluation ever created for the given ticket."""
         return self._evaluation_repo.get_evaluations_by_ticket_id(ticket_id)

@@ -6,13 +6,11 @@ Single Responsibility: only evaluates tickets through a LangChain chat model.
 from __future__ import annotations
 
 from app.config import get_settings
-
+from app.schemas.ticket import AIEvaluationResult, TicketData
+from app.services.interfaces import AIEvaluatorInterface
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-
-from app.schemas.ticket import AIEvaluationResult, TicketData
-from app.services.interfaces import AIEvaluatorInterface
 
 _SYSTEM_PROMPT = """
 Você é um Product Owner Sênior de TMDS, Engenheiro de Sistemas e Líder de Entrega Ágil com experiência em sistemas ferroviários de missão crítica, Azure DevOps, engenharia de requisitos, testes e triagem de defeitos.
@@ -111,7 +109,9 @@ class OpenAITicketEvaluator(AIEvaluatorInterface):
     def __init__(self, api_key: str, model: str) -> None:
         settings = get_settings()
         base_url = settings.local_models_base_url if settings.use_local_models else None
-        self._model_name = settings.local_model_name if settings.use_local_models else model
+        self._model_name = (
+            settings.local_model_name if settings.use_local_models else model
+        )
 
         chat_model = ChatOpenAI(
             model=self._model_name,
@@ -184,6 +184,6 @@ class OpenAITicketEvaluator(AIEvaluatorInterface):
             f"Fix Description: {ticket.fix_description or '(No fix description provided)'}",
             f"Description: {ticket.description or '(No description provided)'}",
             f"Acceptance Criteria: {ticket.acceptance_criteria or '(No acceptance criteria provided)'}",
-            f"Comments: {_new_line.join(ticket.comments) or '(No comments provided)'}"
+            f"Comments: {_new_line.join(ticket.comments) or '(No comments provided)'}",
         ]
         return _new_line.join(lines)

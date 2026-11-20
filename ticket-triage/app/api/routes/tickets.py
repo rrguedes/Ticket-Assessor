@@ -6,20 +6,16 @@ Single Responsibility: only maps HTTP requests to service calls and formats resp
 from __future__ import annotations
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-
 from app.config import get_settings
 from app.database.connection import get_db
-from app.schemas.ticket import (
-    EvaluateTicketRequest,
-    EvaluationListResponse,
-    EvaluationResponse,
-)
+from app.schemas.ticket import (EvaluateTicketRequest, EvaluationListResponse,
+                                EvaluationResponse)
 from app.services.azure_devops import AzureDevOpsTicketFetcher
 from app.services.evaluation_repository import PostgreSQLEvaluationRepository
 from app.services.openai_service import OpenAITicketEvaluator
 from app.services.ticket_service import TicketTriageService
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 # Full paths: /triage/tickets/evaluate, /triage/tickets/evaluations, …

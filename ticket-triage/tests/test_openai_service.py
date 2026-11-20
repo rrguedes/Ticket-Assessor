@@ -2,17 +2,17 @@
 Unit tests for OpenAITicketEvaluator.
 The LangChain model is fully mocked — no real API calls.
 """
-import pytest
+
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from langchain_core.runnables import RunnableLambda
-
+import pytest
 from app.schemas.ticket import TicketData
 from app.services.openai_service import OpenAITicketEvaluator
-
+from langchain_core.runnables import RunnableLambda
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def evaluator() -> OpenAITicketEvaluator:
@@ -42,6 +42,7 @@ def test_local_model_configuration_is_used():
 
 
 # ── evaluate_ticket ───────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_evaluate_ticket_parses_score(evaluator, sample_ticket):
@@ -80,12 +81,18 @@ async def test_evaluate_ticket_parses_feedback(evaluator, sample_ticket):
 
 
 @pytest.mark.asyncio
-async def test_evaluate_ticket_returns_questions_for_low_score(evaluator, minimal_ticket):
+async def test_evaluate_ticket_returns_questions_for_low_score(
+    evaluator, minimal_ticket
+):
     response = {
         "score": 2.0,
         "feedback": "Ticket is too vague.",
         "strengths": [],
-        "additional_questions": ["What is the goal?", "Who is affected?", "What are the ACs?"],
+        "additional_questions": [
+            "What is the goal?",
+            "Who is affected?",
+            "What are the ACs?",
+        ],
     }
     with patch.object(
         evaluator,
@@ -136,7 +143,9 @@ async def test_evaluate_ticket_handles_missing_optional_keys(evaluator, sample_t
 
 
 @pytest.mark.asyncio
-async def test_evaluate_ticket_refines_until_result_stabilizes(evaluator, sample_ticket):
+async def test_evaluate_ticket_refines_until_result_stabilizes(
+    evaluator, sample_ticket
+):
     response = {
         "score": 7.5,
         "feedback": "Good ticket.",
@@ -175,6 +184,7 @@ async def test_evaluate_ticket_stops_at_maximum_iterations(evaluator, sample_tic
 
 # ── _format_ticket ────────────────────────────────────────────────────────────
 
+
 def test_format_ticket_includes_all_fields(evaluator):
     ticket = TicketData(
         ticket_id="999",
@@ -199,11 +209,15 @@ def test_format_ticket_includes_all_fields(evaluator):
     assert "3.0" in formatted
 
 
-def test_format_ticket_shows_placeholder_for_missing_description(evaluator, minimal_ticket):
+def test_format_ticket_shows_placeholder_for_missing_description(
+    evaluator, minimal_ticket
+):
     formatted = evaluator._format_ticket(minimal_ticket)
     assert "No description provided" in formatted
 
 
-def test_format_ticket_shows_placeholder_for_missing_criteria(evaluator, minimal_ticket):
+def test_format_ticket_shows_placeholder_for_missing_criteria(
+    evaluator, minimal_ticket
+):
     formatted = evaluator._format_ticket(minimal_ticket)
     assert "No acceptance criteria provided" in formatted

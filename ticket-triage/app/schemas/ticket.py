@@ -4,8 +4,10 @@ Single Responsibility: Only describes data shapes for the API layer.
 """
 
 from __future__ import annotations
-from typing import List, Optional
+
 from datetime import datetime
+from typing import List, Optional
+
 from pydantic import BaseModel, Field
 
 # ── Inbound ──────────────────────────────────────────────────────────────────
@@ -67,8 +69,6 @@ class AIEvaluationResult(BaseModel):
         description="Veredito final explicando se o ticket pode ser priorizado, estimado, implementado e testado",
     )
     model: Optional[str] = None
-    
-    
 
 
 # ── Outbound ──────────────────────────────────────────────────────────────────

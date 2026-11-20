@@ -5,11 +5,11 @@ Open/Closed: extend by subclassing or swapping; no changes needed here for other
 """
 
 from __future__ import annotations
+
 import base64
 import re
 
 import httpx
-
 from app.schemas.ticket import TicketData
 from app.services.interfaces import TicketFetcherInterface
 
@@ -79,7 +79,9 @@ class AzureDevOpsTicketFetcher(TicketFetcherInterface):
             tags=fields.get("System.Tags"),
             story_points=fields.get("Microsoft.VSTS.Scheduling.StoryPoints"),
             repro_steps=_strip_html(fields.get("Microsoft.VSTS.TCM.ReproSteps")),
-            fix_description=_strip_html(fields.get("Microsoft.VSTS.TCM.FixDescription")),
+            fix_description=_strip_html(
+                fields.get("Microsoft.VSTS.TCM.FixDescription")
+            ),
             comments=comments,
         )
 

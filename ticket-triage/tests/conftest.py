@@ -1,10 +1,12 @@
 """
 Shared pytest fixtures.
 """
-from datetime import datetime, timezone
-import pytest
 
-from app.schemas.ticket import AIEvaluationResult, EvaluationResponse, TicketData
+from datetime import datetime, timezone
+
+import pytest
+from app.schemas.ticket import (AIEvaluationResult, EvaluationResponse,
+                                TicketData)
 
 
 @pytest.fixture
@@ -45,7 +47,11 @@ def good_evaluation() -> AIEvaluationResult:
             "Ticket bem estruturado com critérios de aceitação claros e valor de negócio definido. "
             "Pequenos detalhes sobre dependências poderiam ser adicionados."
         ),
-        strengths=["Título descritivo", "Critérios de aceitação testáveis", "Esforço estimado"],
+        strengths=[
+            "Título descritivo",
+            "Critérios de aceitação testáveis",
+            "Esforço estimado",
+        ],
         additional_questions=[],
     )
 

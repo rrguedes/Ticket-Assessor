@@ -4,15 +4,15 @@ Registers middleware, mounts the API router and serves the static frontend.
 """
 
 from __future__ import annotations
+
 import os
 
+from app.api.routes import tickets
+from app.database.connection import Base, engine
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-
-from app.api.routes import tickets
-from app.database.connection import Base, engine
 
 # ── Create tables (idempotent) ────────────────────────────────────────────────
 Base.metadata.create_all(bind=engine)

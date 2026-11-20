@@ -5,11 +5,14 @@ Dependency Inversion Principle: high-level modules depend on these abstractions,
 not on concrete implementations.  Liskov Substitution: every concrete class that
 implements an interface must be transparently replaceable.
 """
+
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-from app.schemas.ticket import AIEvaluationResult, EvaluationResponse, TicketData
+from app.schemas.ticket import (AIEvaluationResult, EvaluationResponse,
+                                TicketData)
 
 
 class TicketFetcherInterface(ABC):
@@ -48,8 +51,6 @@ class EvaluationRepositoryInterface(ABC):
         ...
 
     @abstractmethod
-    def get_evaluations_by_ticket_id(
-        self, ticket_id: str
-    ) -> List[EvaluationResponse]:
+    def get_evaluations_by_ticket_id(self, ticket_id: str) -> List[EvaluationResponse]:
         """Return all evaluations for a given ticket ID."""
         ...

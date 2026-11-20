@@ -2,9 +2,10 @@
 SQLAlchemy ORM models.
 Single Responsibility: Only defines the database schema.
 """
-from sqlalchemy import Column, Integer, String, Float, Text, DateTime, JSON
-from sqlalchemy.sql import func
+
 from app.database.connection import Base
+from sqlalchemy import JSON, Column, DateTime, Float, Integer, String, Text
+from sqlalchemy.sql import func
 
 
 class TicketEvaluation(Base):

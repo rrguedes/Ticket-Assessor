@@ -3,11 +3,10 @@ Unit tests for AzureDevOpsTicketFetcher.
 HTTP calls are mocked with unittest.mock — no real network traffic.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
-
+import pytest
 from app.services.azure_devops import AzureDevOpsTicketFetcher, _strip_html
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -139,9 +138,7 @@ async def test_fetch_ticket_handles_missing_optional_fields(fetcher):
 
 @pytest.mark.asyncio
 async def test_fetch_ticket_collects_comments_across_pages(fetcher):
-    work_item_response = _make_http_response(
-        {"id": 1, "fields": _full_fields()}
-    )
+    work_item_response = _make_http_response({"id": 1, "fields": _full_fields()})
     first_comments_page = _make_http_response(
         {
             "comments": [
@@ -171,14 +168,13 @@ async def test_fetch_ticket_collects_comments_across_pages(fetcher):
     assert get.await_count == 3
     first_comments_request = get.await_args_list[1]
     second_comments_request = get.await_args_list[2]
-    assert first_comments_request.args[0].endswith(
-        "/_apis/wit/workItems/1/comments"
-    )
+    assert first_comments_request.args[0].endswith("/_apis/wit/workItems/1/comments")
     assert first_comments_request.kwargs["params"] == {
         "api-version": "7.1-preview.4",
         "$top": 200,
     }
     assert second_comments_request.kwargs["params"]["continuationToken"] == "next-page"
+
 
 @pytest.mark.asyncio
 async def test_fetch_ticket_handles_string_assigned_to(fetcher):

@@ -2,13 +2,14 @@
 Unit tests for TicketTriageService.
 All dependencies are replaced with mocks — no real network or DB calls.
 """
-import pytest
+
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from app.services.ticket_service import TicketTriageService
 
-
 # ── Fixtures ──────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def mock_fetcher():
@@ -36,10 +37,16 @@ def service(mock_fetcher, mock_evaluator, mock_repo) -> TicketTriageService:
 
 # ── evaluate_ticket ───────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_evaluate_ticket_calls_all_dependencies(
-    service, mock_fetcher, mock_evaluator, mock_repo,
-    sample_ticket, good_evaluation, saved_evaluation,
+    service,
+    mock_fetcher,
+    mock_evaluator,
+    mock_repo,
+    sample_ticket,
+    good_evaluation,
+    saved_evaluation,
 ):
     mock_fetcher.fetch_ticket.return_value = sample_ticket
     mock_evaluator.evaluate_ticket.return_value = good_evaluation
@@ -55,8 +62,13 @@ async def test_evaluate_ticket_calls_all_dependencies(
 
 @pytest.mark.asyncio
 async def test_evaluate_ticket_returns_saved_evaluation(
-    service, mock_fetcher, mock_evaluator, mock_repo,
-    sample_ticket, good_evaluation, saved_evaluation,
+    service,
+    mock_fetcher,
+    mock_evaluator,
+    mock_repo,
+    sample_ticket,
+    good_evaluation,
+    saved_evaluation,
 ):
     mock_fetcher.fetch_ticket.return_value = sample_ticket
     mock_evaluator.evaluate_ticket.return_value = good_evaluation
@@ -71,7 +83,10 @@ async def test_evaluate_ticket_returns_saved_evaluation(
 
 @pytest.mark.asyncio
 async def test_evaluate_ticket_propagates_fetcher_exception(
-    service, mock_fetcher, mock_evaluator, mock_repo,
+    service,
+    mock_fetcher,
+    mock_evaluator,
+    mock_repo,
 ):
     mock_fetcher.fetch_ticket.side_effect = ValueError("Ticket not found")
 
@@ -84,7 +99,10 @@ async def test_evaluate_ticket_propagates_fetcher_exception(
 
 @pytest.mark.asyncio
 async def test_evaluate_ticket_propagates_ai_exception(
-    service, mock_fetcher, mock_evaluator, mock_repo,
+    service,
+    mock_fetcher,
+    mock_evaluator,
+    mock_repo,
     sample_ticket,
 ):
     mock_fetcher.fetch_ticket.return_value = sample_ticket
@@ -98,8 +116,11 @@ async def test_evaluate_ticket_propagates_ai_exception(
 
 # ── get_all_evaluations ───────────────────────────────────────────────────────
 
+
 def test_get_all_evaluations_delegates_to_repo(
-    service, mock_repo, saved_evaluation,
+    service,
+    mock_repo,
+    saved_evaluation,
 ):
     mock_repo.get_evaluations.return_value = ([saved_evaluation], 1)
 
@@ -121,8 +142,11 @@ def test_get_all_evaluations_empty(service, mock_repo):
 
 # ── get_evaluations_by_ticket ─────────────────────────────────────────────────
 
+
 def test_get_evaluations_by_ticket_delegates_to_repo(
-    service, mock_repo, saved_evaluation,
+    service,
+    mock_repo,
+    saved_evaluation,
 ):
     mock_repo.get_evaluations_by_ticket_id.return_value = [saved_evaluation]
 

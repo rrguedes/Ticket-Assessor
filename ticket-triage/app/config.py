@@ -4,6 +4,7 @@ Single Responsibility: Only manages settings and their defaults.
 """
 
 from functools import lru_cache
+
 from pydantic_settings import BaseSettings
 
 
