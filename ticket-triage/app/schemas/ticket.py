@@ -17,6 +17,10 @@ class EvaluateTicketRequest(BaseModel):
     ticket_id: str = Field(
         ..., description="Azure DevOps work item ID", examples=["12345"]
     )
+    consultar_documentos: bool = Field(
+        default=False,
+        description="Consultar os documentos de requisitos de modos de operação",
+    )
 
 
 # ── Domain objects (internal) ─────────────────────────────────────────────────
@@ -74,6 +78,13 @@ class AIEvaluationResult(BaseModel):
 # ── Outbound ──────────────────────────────────────────────────────────────────
 
 
+class RequirementExcerpt(BaseModel):
+    content: str
+    collection: str
+    page: Optional[int] = None
+    similarity_score: Optional[float] = None
+
+
 class EvaluationResponse(BaseModel):
     id: int
     ticket_id: str
@@ -87,6 +98,7 @@ class EvaluationResponse(BaseModel):
     evaluated_at: datetime
     verdict: str
     model: Optional[str] = None
+    consulted_requirements: List[RequirementExcerpt] = Field(default_factory=list)
 
     model_config = {"from_attributes": True}
 

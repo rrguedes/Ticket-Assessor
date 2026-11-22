@@ -12,6 +12,7 @@ from app.schemas.ticket import (EvaluateTicketRequest, EvaluationListResponse,
                                 EvaluationResponse)
 from app.services.azure_devops import AzureDevOpsTicketFetcher
 from app.services.evaluation_repository import PostgreSQLEvaluationRepository
+from app.services.agent.rag.requirements_retriever import RequirementsRetriever
 from app.services.openai_service import OpenAITicketEvaluator
 from app.services.ticket_service import TicketTriageService
 from fastapi import APIRouter, Depends, HTTPException
@@ -38,6 +39,7 @@ def _get_service(db: Session = Depends(get_db)) -> TicketTriageService:
             model=cfg.openai_model,
         ),
         evaluation_repo=PostgreSQLEvaluationRepository(db=db),
+        requirements_retriever=RequirementsRetriever(),
     )
 
 
@@ -51,7 +53,10 @@ async def evaluate_ticket(
 ) -> EvaluationResponse:
     """Fetch an Azure DevOps ticket by ID, evaluate it with AI, and persist the result."""
     try:
-        return await service.evaluate_ticket(body.ticket_id)
+        return await service.evaluate_ticket(
+            body.ticket_id,
+            consultar_documentos=body.consultar_documentos,
+        )
     except httpx.HTTPStatusError as exc:
         if exc.response.status_code == 404:
             raise HTTPException(

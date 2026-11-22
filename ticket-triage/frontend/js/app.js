@@ -8,6 +8,7 @@ const API_BASE = '/triage/tickets';
 // ── Element references ────────────────────────────────────────────────────────
 const form = document.getElementById('evaluate-form');
 const ticketInput = document.getElementById('ticket-id');
+const consultarDocumentosInput = document.getElementById('consultar-documentos');
 const submitBtn = document.getElementById('submit-btn');
 const btnLabel = document.getElementById('btn-label');
 const btnSpinner = document.getElementById('btn-spinner');
@@ -28,6 +29,8 @@ const strengthsSection = document.getElementById('strengths-section');
 const strengthsList = document.getElementById('strengths-list');
 const questionsSection = document.getElementById('questions-section');
 const questionsList = document.getElementById('questions-list');
+const requirementsSection = document.getElementById('requirements-section');
+const requirementsList = document.getElementById('requirements-list');
 
 const historyList = document.getElementById('history-list');
 const historyLoading = document.getElementById('history-loading');
@@ -113,6 +116,29 @@ function renderResult(data) {
     questionsSection.classList.add('hidden');
   }
 
+  requirementsList.innerHTML = '';
+  if (data.consulted_requirements && data.consulted_requirements.length) {
+    data.consulted_requirements.forEach(requirement => {
+      const li = document.createElement('li');
+      li.className = 'requirements-list__item';
+
+      const source = document.createElement('div');
+      source.className = 'requirements-list__source';
+      const page = requirement.page ? ` · Página ${requirement.page}` : '';
+      source.textContent = `${requirement.collection}${page}`;
+
+      const content = document.createElement('p');
+      content.className = 'requirements-list__content';
+      content.textContent = requirement.content;
+
+      li.append(source, content);
+      requirementsList.appendChild(li);
+    });
+    requirementsSection.classList.remove('hidden');
+  } else {
+    requirementsSection.classList.add('hidden');
+  }
+
   resultCard.classList.remove('hidden');
   resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -191,7 +217,10 @@ form.addEventListener('submit', async (e) => {
     const res = await fetch(`${API_BASE}/evaluate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ticket_id: ticketId }),
+      body: JSON.stringify({
+        ticket_id: ticketId,
+        consultar_documentos: consultarDocumentosInput.checked,
+      }),
     });
 
     if (!res.ok) {

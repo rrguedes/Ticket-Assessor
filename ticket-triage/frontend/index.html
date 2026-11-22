@@ -47,6 +47,14 @@
                 required
               />
             </div>
+            <label class="checkbox-label" for="consultar-documentos">
+              <input
+                type="checkbox"
+                id="consultar-documentos"
+                name="consultar_documentos"
+              />
+              <span>Consultar Documentos</span>
+            </label>
           </div>
           <button class="btn btn--primary" type="submit" id="submit-btn">
             <span id="btn-label">Analisar Ticket</span>
@@ -95,6 +103,10 @@
             <strong>Nota inferior a 8 — perguntas para completar o ticket</strong>
           </div>
           <ol class="questions-list" id="questions-list"></ol>
+        </div>
+        <div class="result-section hidden" id="requirements-section">
+          <h3 class="result-section__heading">Requisitos Consultados</h3>
+          <ul class="requirements-list" id="requirements-list"></ul>
         </div>
         <div class="verdict-section">
           <h3 class="verdict-section__heading">Veredito Final</h3>

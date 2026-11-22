@@ -2,10 +2,9 @@
 
 from unittest.mock import AsyncMock, MagicMock, mock_open, patch
 
-from app.services.agent.rag.document_loader import PDFDocumentLoaderRAGService
-
 import httpx
 import pytest
+from app.services.agent.rag.document_loader import PDFDocumentLoaderRAGService
 
 
 @pytest.fixture

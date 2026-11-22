@@ -170,6 +170,47 @@ input { font: inherit; }
   color: var(--color-text);
   background: transparent;
 }
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: .9rem;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.checkbox-label input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+.requirements-list {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.requirements-list__item {
+  padding: 10px 12px;
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+}
+.requirements-list__source {
+  margin-bottom: 4px;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.requirements-list__content {
+  margin: 0;
+  font-size: .85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
 
 /* ── Buttons ───────────────────────────────────────────────────────────────── */
 .btn {

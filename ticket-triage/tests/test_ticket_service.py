@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from app.services.ticket_service import TicketTriageService
+from langchain_core.documents import Document
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -79,6 +80,44 @@ async def test_evaluate_ticket_returns_saved_evaluation(
     assert result.id == 1
     assert result.score == 8.5
     assert result.ticket_id == "12345"
+
+
+@pytest.mark.asyncio
+async def test_evaluate_ticket_uses_requirements_when_requested(
+    mock_fetcher,
+    mock_evaluator,
+    mock_repo,
+    sample_ticket,
+    good_evaluation,
+    saved_evaluation,
+):
+    requirements_retriever = MagicMock()
+    requirements_retriever.search.return_value = [
+        Document(
+            page_content="O modo CBL exige confirmação do estado antes da transição.",
+            metadata={"collection": "Modos_Operacao_CBL", "page": 12},
+        )
+    ]
+    mock_fetcher.fetch_ticket.return_value = sample_ticket
+    mock_evaluator.evaluate_ticket.return_value = good_evaluation
+    mock_repo.save_evaluation.return_value = saved_evaluation
+    service = TicketTriageService(
+        ticket_fetcher=mock_fetcher,
+        ai_evaluator=mock_evaluator,
+        evaluation_repo=mock_repo,
+        requirements_retriever=requirements_retriever,
+    )
+
+    await service.evaluate_ticket("12345", consultar_documentos=True)
+
+    requirements_retriever.search.assert_called_once()
+    query = requirements_retriever.search.call_args.args[0]
+    assert sample_ticket.title in query
+    context = mock_evaluator.evaluate_ticket.call_args.kwargs[
+        "requirements_context"
+    ]
+    assert "Modos_Operacao_CBL" in context
+    assert "página=12" in context
 
 
 @pytest.mark.asyncio

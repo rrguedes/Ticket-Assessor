@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     use_local_models: bool
     local_models_base_url: str
     local_model_name: str
+    debug_mode: bool = False
+    embedding_model: str = "text-embedding-3-large"
+    chroma_persist_directory: str = "chroma_db"
 
     class Config:
         env_file = ".env"

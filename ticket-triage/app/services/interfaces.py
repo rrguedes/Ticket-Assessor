@@ -13,6 +13,7 @@ from typing import List, Tuple
 
 from app.schemas.ticket import (AIEvaluationResult, EvaluationResponse,
                                 TicketData)
+from langchain_core.documents import Document
 
 
 class TicketFetcherInterface(ABC):
@@ -28,8 +29,19 @@ class AIEvaluatorInterface(ABC):
     """Evaluates a ticket using an AI model."""
 
     @abstractmethod
-    async def evaluate_ticket(self, ticket: TicketData) -> AIEvaluationResult:
+    async def evaluate_ticket(
+        self, ticket: TicketData, requirements_context: str | None = None
+    ) -> AIEvaluationResult:
         """Return a structured AI evaluation for the given ticket."""
+        ...
+
+
+class RequirementsRetrieverInterface(ABC):
+    """Searches the requirements knowledge base for relevant excerpts."""
+
+    @abstractmethod
+    def search(self, query: str, k: int = 5) -> list[Document]:
+        """Return the most relevant requirement excerpts for a query."""
         ...
 
 
