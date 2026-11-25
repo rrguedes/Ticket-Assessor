@@ -8,19 +8,14 @@ pushed to the concrete implementations injected at construction time.
 
 from __future__ import annotations
 
-from langchain_core.documents import Document
-
-from app.schemas.ticket import (
-    EvaluationResponse,
-    RequirementExcerpt,
-    TicketData,
-)
+from app.schemas.ticket import EvaluationResponse, RequirementExcerpt, TicketData
 from app.services.interfaces import (
     AIEvaluatorInterface,
     EvaluationRepositoryInterface,
     RequirementsRetrieverInterface,
     TicketFetcherInterface,
 )
+from langchain_core.documents import Document
 
 
 class TicketTriageService:

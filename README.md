@@ -146,3 +146,16 @@ pytest
 - The AI output is structured and validated with Pydantic models.
 - The app is designed as a functional prototype and may need additional hardening for production use, such as authentication, rate limiting, and better error handling.
 - The project does not currently declare a license file.
+
+### Sincronização dos casos de teste
+
+A partir de `ticket-triage/`, execute `python -m scripts.sync_test_plan` para baixar os casos das suítes **Non IVOC CBL** e **Non IVOC TWC**, incluindo suas subsuítes, do plano 536901. São usadas as mesmas configurações `AZURE_DEVOPS_ORG_URL`, `AZURE_DEVOPS_PROJECT` e `AZURE_DEVOPS_PAT` da aplicação. O PAT precisa ter acesso de leitura aos planos e work items.
+
+O comando grava `app/vector_store/test_cases/plan_536901.json` com os campos originais dos work items, os produtos associados e a data da sincronização. Uma falha durante a coleta preserva o arquivo anterior. Execute novamente para atualizar o retrato completo. Após salvar o arquivo, o comando também reconstrói o índice de busca; a avaliação de tickets ainda não consulta os casos automaticamente.
+
+Cada caso também contém `normalized`, com texto legível para título, descrição, pré-condições e outros campos textuais disponíveis. Os passos são mantidos em ordem, com ação e resultado esperado separados; referências a passos compartilhados permanecem como referências e ainda não são expandidas. Os campos originais permanecem em `work_item.fields`, inclusive XML e HTML, para preservar os dados de origem. As próximas sincronizações geram essa representação automaticamente.
+
+
+Para indexar o retrato já baixado, execute `python -m scripts.test_case_index index` a partir de `ticket-triage/`. Consulte com `python -m scripts.test_case_index search "descrição do cenário" -k 5`. A busca retorna os candidatos, seus metadados e a distância vetorial (quanto menor, mais próximo); isso não comprova cobertura. O Ollama e o modelo configurado em `EMBEDDING_MODEL` devem estar disponíveis, e `CHROMA_PERSIST_DIRECTORY` deve permanecer igual entre indexação e consulta.
+
+A publicação do índice ocorre após a indexação completa. Se ela falhar, o JSON pode estar mais recente que o índice anterior, cuja data de sincronização é apresentada na busca. Cada reconstrução cria uma nova coleção; coleções anteriores permanecem no Chroma e podem ocupar espaço. Para validar a qualidade da busca, compare os resultados com casos conhecidos antes de usá-los na avaliação de cobertura.

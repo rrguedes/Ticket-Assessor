@@ -1,8 +1,7 @@
 from unittest.mock import MagicMock, patch
 
-from langchain_core.documents import Document
-
 from app.services.agent.rag.requirements_retriever import RequirementsRetriever
+from langchain_core.documents import Document
 
 
 def test_search_combines_collections_and_returns_best_results():
@@ -17,9 +16,7 @@ def test_search_combines_collections_and_returns_best_results():
     ]
 
     with (
-        patch(
-            "app.services.agent.rag.requirements_retriever.OllamaEmbeddings"
-        ),
+        patch("app.services.agent.rag.requirements_retriever.OllamaEmbeddings"),
         patch(
             "app.services.agent.rag.requirements_retriever.Chroma",
             side_effect=[cbl_store, twc_store],
@@ -44,9 +41,7 @@ def test_search_combines_collections_and_returns_best_results():
 
 def test_search_does_not_query_for_empty_input_or_invalid_k():
     with (
-        patch(
-            "app.services.agent.rag.requirements_retriever.OllamaEmbeddings"
-        ),
+        patch("app.services.agent.rag.requirements_retriever.OllamaEmbeddings"),
         patch("app.services.agent.rag.requirements_retriever.Chroma") as chroma,
     ):
         retriever = RequirementsRetriever()

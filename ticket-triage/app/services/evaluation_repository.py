@@ -10,8 +10,7 @@ from __future__ import annotations
 from typing import List, Tuple
 
 from app.database.models import TicketEvaluation
-from app.schemas.ticket import (AIEvaluationResult, EvaluationResponse,
-                                TicketData)
+from app.schemas.ticket import AIEvaluationResult, EvaluationResponse, TicketData
 from app.services.interfaces import EvaluationRepositoryInterface
 from sqlalchemy.orm import Session
 

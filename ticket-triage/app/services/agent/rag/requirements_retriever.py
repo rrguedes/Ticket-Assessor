@@ -6,12 +6,11 @@ import os
 from collections.abc import Sequence
 from pathlib import Path
 
+from app.services.interfaces import RequirementsRetrieverInterface
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_ollama import OllamaEmbeddings
-
-from app.services.interfaces import RequirementsRetrieverInterface
 
 load_dotenv(Path(__file__).resolve().parents[4] / ".env")
 

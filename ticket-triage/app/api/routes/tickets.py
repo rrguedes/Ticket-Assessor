@@ -8,11 +8,14 @@ from __future__ import annotations
 import httpx
 from app.config import get_settings
 from app.database.connection import get_db
-from app.schemas.ticket import (EvaluateTicketRequest, EvaluationListResponse,
-                                EvaluationResponse)
+from app.schemas.ticket import (
+    EvaluateTicketRequest,
+    EvaluationListResponse,
+    EvaluationResponse,
+)
+from app.services.agent.rag.requirements_retriever import RequirementsRetriever
 from app.services.azure_devops import AzureDevOpsTicketFetcher
 from app.services.evaluation_repository import PostgreSQLEvaluationRepository
-from app.services.agent.rag.requirements_retriever import RequirementsRetriever
 from app.services.openai_service import OpenAITicketEvaluator
 from app.services.ticket_service import TicketTriageService
 from fastapi import APIRouter, Depends, HTTPException

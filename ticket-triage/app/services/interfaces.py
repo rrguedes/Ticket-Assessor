@@ -11,8 +11,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-from app.schemas.ticket import (AIEvaluationResult, EvaluationResponse,
-                                TicketData)
+from app.schemas.ticket import AIEvaluationResult, EvaluationResponse, TicketData
 from langchain_core.documents import Document
 
 
@@ -66,3 +65,10 @@ class EvaluationRepositoryInterface(ABC):
     def get_evaluations_by_ticket_id(self, ticket_id: str) -> List[EvaluationResponse]:
         """Return all evaluations for a given ticket ID."""
         ...
+
+
+class Agent(ABC):
+    """Interface padrão para a implementação de agentes"""
+
+    @abstractmethod
+    def run_agent() -> str: ...

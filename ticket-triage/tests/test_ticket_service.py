@@ -113,9 +113,7 @@ async def test_evaluate_ticket_uses_requirements_when_requested(
     requirements_retriever.search.assert_called_once()
     query = requirements_retriever.search.call_args.args[0]
     assert sample_ticket.title in query
-    context = mock_evaluator.evaluate_ticket.call_args.kwargs[
-        "requirements_context"
-    ]
+    context = mock_evaluator.evaluate_ticket.call_args.kwargs["requirements_context"]
     assert "Modos_Operacao_CBL" in context
     assert "página=12" in context
 

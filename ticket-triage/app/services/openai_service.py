@@ -6,15 +6,14 @@ Single Responsibility: only evaluates tickets through a LangChain chat model.
 import json
 import os
 
-from dotenv import load_dotenv
-
 from app.config import get_settings
 from app.schemas.ticket import AIEvaluationResult, TicketData
 from app.services.interfaces import AIEvaluatorInterface
+from dotenv import load_dotenv
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
 from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 from pydantic import SecretStr
 
 load_dotenv()

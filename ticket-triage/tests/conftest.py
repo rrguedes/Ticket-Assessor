@@ -5,8 +5,7 @@ Shared pytest fixtures.
 from datetime import datetime, timezone
 
 import pytest
-from app.schemas.ticket import (AIEvaluationResult, EvaluationResponse,
-                                TicketData)
+from app.schemas.ticket import AIEvaluationResult, EvaluationResponse, TicketData
 
 
 @pytest.fixture
